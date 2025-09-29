@@ -1,0 +1,23 @@
+# LaTeX build artifacts
+*.aux
+*.log
+*.out
+*.atfi
+*.fdb_latexmk
+*.fls
+*.synctex.gz
+*.toc
+*.lof
+*.lot
+*.bbl
+*.blg
+*.idx
+*.ind
+*.ilg
+
+# Generated PDFs (keep Demo_PDFs folder PDFs if they're final outputs)
+/*.pdf
+
+# Temporary files
+*~
+.DS_Store
