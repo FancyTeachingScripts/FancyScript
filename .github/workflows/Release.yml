@@ -30,13 +30,19 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Install Comic Sans MS font
+      # Install Comic Sans MS font (using Comic Neue as substitute)
       - name: Install fonts
         run: |
           sudo apt-get update
-          echo "ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true" | sudo debconf-set-selections
-          sudo apt-get install -y ttf-mscorefonts-installer fontconfig
+          sudo apt-get install -y fonts-comic-neue fontconfig texlive-lang-german
+          # Create symlinks so that "Comic Sans MS" is recognized by luaotfload
+          sudo mkdir -p /usr/share/fonts/truetype/comic-sans-ms
+          sudo ln -sf /usr/share/fonts/opentype/comic-neue/ComicNeue-Regular.otf "/usr/share/fonts/truetype/comic-sans-ms/Comic Sans MS.ttf"
+          sudo ln -sf /usr/share/fonts/opentype/comic-neue/ComicNeue-Bold.otf "/usr/share/fonts/truetype/comic-sans-ms/Comic Sans MS Bold.ttf"
+          sudo ln -sf /usr/share/fonts/opentype/comic-neue/ComicNeue-Italic.otf "/usr/share/fonts/truetype/comic-sans-ms/Comic Sans MS Italic.ttf"
+          sudo ln -sf /usr/share/fonts/opentype/comic-neue/ComicNeue-Regular.otf "/usr/share/fonts/truetype/comic-sans-ms/ComicSansMS.ttf"
           sudo fc-cache -fv
+          luaotfload-tool --update --force
 
       # Compile LaTeX document to PDF using XeLaTeX
       - name: Compile LaTeX document
@@ -72,13 +78,19 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Install Comic Sans MS font
+      # Install Comic Sans MS font (using Comic Neue as substitute)
       - name: Install fonts
         run: |
           sudo apt-get update
-          echo "ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true" | sudo debconf-set-selections
-          sudo apt-get install -y ttf-mscorefonts-installer fontconfig
+          sudo apt-get install -y fonts-comic-neue fontconfig texlive-lang-german
+          # Create symlinks so that "Comic Sans MS" is recognized by luaotfload
+          sudo mkdir -p /usr/share/fonts/truetype/comic-sans-ms
+          sudo ln -sf /usr/share/fonts/opentype/comic-neue/ComicNeue-Regular.otf "/usr/share/fonts/truetype/comic-sans-ms/Comic Sans MS.ttf"
+          sudo ln -sf /usr/share/fonts/opentype/comic-neue/ComicNeue-Bold.otf "/usr/share/fonts/truetype/comic-sans-ms/Comic Sans MS Bold.ttf"
+          sudo ln -sf /usr/share/fonts/opentype/comic-neue/ComicNeue-Italic.otf "/usr/share/fonts/truetype/comic-sans-ms/Comic Sans MS Italic.ttf"
+          sudo ln -sf /usr/share/fonts/opentype/comic-neue/ComicNeue-Regular.otf "/usr/share/fonts/truetype/comic-sans-ms/ComicSansMS.ttf"
           sudo fc-cache -fv
+          luaotfload-tool --update --force
 
       # Get filename without extension
       - name: Get filename without extension
