@@ -31,7 +31,7 @@ bash "$SCRIPT_DIR/gen-main.sh" main
 mkdir -p "$OUT"
 
 ls main/*.tex | xargs -P "$JOBS" -I{} \
-  tectonic -Z search-path=template -Z search-path=. -Z search-path=template/sty/moloch \
+  tectonic -Z search-path=. -Z search-path=template -Z search-path=template/sty/moloch \
     -Z continue-on-errors $REPASS -o "$OUT" {}
 rc=$?
 

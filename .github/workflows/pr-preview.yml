@@ -38,7 +38,7 @@ jobs:
 
       - name: Compile ${{ matrix.texfile }}
         run: |
-          tectonic -Z search-path=${{ inputs.template_dir }} -Z search-path=. \
+          tectonic -Z search-path=. -Z search-path=${{ inputs.template_dir }} \
                    -Z search-path=${{ inputs.template_dir }}/sty/moloch \
                    -Z continue-on-errors -o . main/${{ matrix.texfile }}
 

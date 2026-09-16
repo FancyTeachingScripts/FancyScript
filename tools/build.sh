@@ -31,5 +31,5 @@ done
 [ "${#args[@]}" -ge 2 ] && OUT="${args[1]}"
 
 mkdir -p "$OUT"
-tectonic -Z search-path=template -Z search-path=. -Z search-path=template/sty/moloch \
+tectonic -Z search-path=. -Z search-path=template -Z search-path=template/sty/moloch \
   -Z continue-on-errors $REPASS -o "$OUT" "$FILE"
