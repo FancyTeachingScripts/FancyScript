@@ -32,7 +32,7 @@ if (!(Test-Path ".\main\pdfs")) {
     Write-Host "Created main/pdfs directory" -ForegroundColor Yellow
 }
 
-$baseArgs = @("-Z", "search-path=template", "-Z", "search-path=.", "-Z", "search-path=template/sty/moloch", "-Z", "continue-on-errors")
+$baseArgs = @("-Z", "search-path=.", "-Z", "search-path=template", "-Z", "search-path=template/sty/moloch", "-Z", "continue-on-errors")
 if ($Draft) { $baseArgs += @("-r", "0") }
 
 $running = @()
