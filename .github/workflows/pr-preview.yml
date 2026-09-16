@@ -18,8 +18,13 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
+        # Feste Preview-Auswahl: Präsentation dunkel + hell, Schüler- und
+        # Lösungsausdruck. Neue Presets werden hier nicht automatisch
+        # aufgenommen (bewusst klein halten -- das volle Matrix baut der
+        # Release-Workflow).
         texfile:
           - presentation_noaufraeumen.tex
+          - presentation_noaufraeumen-bright.tex
           - print_students-cover.tex
           - print_solution-cover.tex
       fail-fast: false
