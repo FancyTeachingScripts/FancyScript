@@ -227,7 +227,7 @@
     \else
         \section{\color{colA} #2}
     \fi
-    \definesframe{#1}{
+    \definesframe{#2}{
     %\begin{frame}
         \setcounter{lsgcount}{1}
         \color{\TFarbe}
@@ -243,7 +243,7 @@
         \begin{tcolorbox}[
             breakable,
             enhanced,
-            title=~~#2,
+            title=\strut~~#2,
             opacityframe=1,
             fontupper=\color{\TFarbe},
             opacityback=1,
@@ -252,8 +252,9 @@
             boxsep=0pt,
             left=3pt,
             right=3pt,
-            fonttitle=\bfseries\Large,
-            overlay={\node[anchor=north east,outer sep=-1pt]  at (frame.north east) {\includegraphics[height=13pt]{sty/img/pen_white.pdf}};}
+            righttitle=20pt,
+            fonttitle=\linespread{1.0}\selectfont\bfseries\Large,
+            overlay={\node[anchor=east,inner sep=0pt,xshift=-3pt] at (title.east) {\includegraphics[height=15pt]{sty/img/pen_white.pdf}};}
         ]
         \marksectionstart
             #3
@@ -312,13 +313,8 @@
     %\begin{frame}
         \setcounter{lsgcount}{1}
         \iftimer
-        
-        \typeout{HI1}
-          \ifnum\numexpr#3>0 \relax 
-          
-        \typeout{HI2}
+          \ifnum\numexpr#3>0 \relax
               \timer{#3}
-        \typeout{HI3}
               \setcounter{lsgcount}{#3}
               \stepcounter{lsgcount}
               \stepcounter{lsgcount}
@@ -337,8 +333,9 @@
             boxsep=0pt,
             left=3pt,
             right=3pt,
+            righttitle=20pt,
             fonttitle=\bfseries\Large,
-            overlay={\node[anchor=north east,outer sep=-1pt] at (frame.north east) {\includegraphics[height=17pt]{sty/img/finger_\theme_colB.pdf}};}
+            overlay={\node[anchor=east,inner sep=0pt,xshift=-3pt] at (title.east) {\includegraphics[height=17pt]{sty/img/finger_\theme_colB.pdf}};}
         ]
           \marksectionstart
           #2
@@ -346,11 +343,18 @@
     }
 }
 
-\newcommand{\UnterAufgabeSkript}[1]{
-    \begin{minipage}[t]{\textwidth} 
-        \vspace{0.2cm}
-        #1
-    \end{minipage}
+% #1: Titel der Teilaufgabe
+% #2: Inhalt
+\newcommand{\UnterAufgabeSkript}[2]{%
+    %\par\noindent%
+    \begin{minipage}[t]{\textwidth}%
+        \vspace{0.2cm}%
+        \ifloesung{\color{colB}\bfseries\large #1}%
+        \par\vspace{0.15cm}%
+        \fi
+        #2%
+    \end{minipage}%
+    %\par%
 }
 
 \newcommand{\UnterAufgabeBeamer}[3]{
@@ -377,14 +381,16 @@
             boxsep=0pt,
             left=3pt,
             right=3pt,
+            righttitle=20pt,
             colback=colB!7!black,
             colframe=lightgray,
             fonttitle=\bfseries\Large,
-            overlay={\node[anchor=north east,outer sep=-1pt] at (frame.north east) {\includegraphics[height=17pt]{sty/img/finger_\theme_colB.pdf}};}
+            overlay={\node[anchor=east,inner sep=0pt,xshift=-3pt] at (title.east) {\includegraphics[height=17pt]{sty/img/finger_\theme_colB.pdf}};}
         ]
           \marksectionstart
           #2
         \end{tcolorbox}
+    %\end{frame}
     }
 
 }
@@ -401,7 +407,7 @@
     \ifbeamer
         \UnterAufgabeBeamer{#2}{#3}{#1}
     \else
-        \UnterAufgabeSkript{#3}
+        \UnterAufgabeSkript{#2}{#3}
     \fi
 }
 
@@ -412,13 +418,15 @@
 % #4: Content left
 % #5: Content right
 \newcommand{\doppelseite}[5]{%
-  \begin{minipage}[#3]{#1\textwidth} \vspace{0pt}
-    #4
-  \end{minipage}
-  \hfill
-  \begin{minipage}[#3]{#2\textwidth} \vspace{0pt}
-    #5
-  \end{minipage}
+  \begin{minipage}[#3]{#1\textwidth}%
+    \vspace{0pt}%
+    #4%
+  \end{minipage}%
+  \hfill%
+  \begin{minipage}[#3]{#2\textwidth}%
+    \vspace{0pt}%
+    #5%
+  \end{minipage}%
 }
 
 	

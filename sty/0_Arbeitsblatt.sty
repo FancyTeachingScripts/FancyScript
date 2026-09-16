@@ -28,7 +28,7 @@
 \fancypagestyle{firstpage}{%
   \setlength{\headsep}{35pt}
   \fancyhead[L]{\includegraphics[height=9mm]{sty/img/logo_\theme.pdf}}
-  \fancyhead[C]{{\Large \Testarttesttext~\Nrtext:~\Titeltext}}
+  \fancyhead[C]{{\Large \Testarttesttext\ifdefempty{\Nrtext}{}{~\Nrtext}:~\Titeltext}}
   \ifletzterstand
     \fancyhead[R]{{\large \Fachtext~\Klassetext\\\Datumtext}}
   \else
@@ -40,7 +40,7 @@
 % Define style for subsequent pages with smaller headsep
 \fancypagestyle{otherpage}{%
   \setlength{\headsep}{20pt}
-  \fancyhead[L]{\Testarttesttext~\Nrtext:~\Titeltext}
+  \fancyhead[L]{\Testarttesttext\ifdefempty{\Nrtext}{}{~\Nrtext}:~\Titeltext}
   \fancyhead[C]{}
   \fancyhead[R]{\Datumtext}
 }

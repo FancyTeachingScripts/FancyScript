@@ -2,7 +2,7 @@
 \ProvidesPackage{sty/2_General}[]
 
 
-\usetikzlibrary{shapes.geometric, arrows, positioning, shapes.geometric, arrows.meta, calc, bending,fadings}
+\usetikzlibrary{shapes.geometric, arrows, positioning, arrows.meta, calc, bending, fadings}
 
 
 \renewcommand{\umltextcolor}{\TFarbe}
@@ -151,7 +151,6 @@ draw=black]
 % }
 \renewcommand{\uniAssociationAngle}[9]{%
     % --- 1. Initialize empty macros ---
-    \typeout{LOG: '#3','#7'}
 
     % --- 2. Parse #3 and populate the macros ---
     \def\assoc@midwaypos{}%
@@ -212,7 +211,6 @@ draw=black]
         }{}%
     }{}%
     
-    \typeout{LOG: '\assoc@midwaypos'}
     % --- 5. Draw the path ---
     \draw[thick, -{Straight Barb[scale=2]}]
         (#1) to
@@ -224,7 +222,6 @@ draw=black]
 }
 \renewcommand{\biAssociationAngle}[9]{%
     % --- 1. Initialize empty macros ---
-    \typeout{LOG: '#3','#7'}
 
     % --- 2. Parse #3 and populate the macros ---
     \def\assoc@midwaypos{}%
@@ -285,7 +282,6 @@ draw=black]
         }{}%
     }{}%
     
-    \typeout{LOG: '\assoc@midwaypos'}
     % --- 5. Draw the path ---
     \draw[thick, -]
         (#1) to
@@ -324,12 +320,6 @@ draw=black]
   \ifdim\pagegoal=\maxdimen
     \resthoehe=\dimexpr\vsize-\pagetotal\relax
   \fi
-  \typeout{pagegoal: \the\pagegoal}%
-  \typeout{pagetotal: \the\pagetotal}
-  \typeout{resthoehe: \the\resthoehe}%
-  \typeout{maxdimen: \the\maxdimen}%
-  \typeout{vsize: \the\vsize}%
-  \typeout{pgflinewidth: \the\pgflinewidth}%
   % --- alle Dimensionen in nackte Zahlen (pt) umwandeln ---
   \edef\cvb@restpt{\strip@pt\resthoehe}%
   \edef\cvb@linept{\strip@pt\pgflinewidth}%
@@ -340,7 +330,6 @@ draw=black]
   \else
     \def\anzahlv{0}%
   \fi
-  \typeout{anzahlv: \anzahlv}
   % Gewünschte Anzahl vs. mögliche Anzahl vergleichen
   \ifnum#2>\anzahlv\relax
     \PackageInfo{sty/2_General}{#2 Kaestchen gefordert, aber nur \anzahlv\space passen. Verwende \anzahlv.}%
@@ -348,7 +337,6 @@ draw=black]
   \else
     \edef\vertcount{#2}%
   \fi
-  \typeout{vertcount: \vertcount}
 }
 
 \renewcommand{\hinweis}[1]{
@@ -361,7 +349,7 @@ draw=black]
 	\begin{tikzpicture}[darkgray,step=#1]
 	\pgfmathtruncatemacro\anzahl{(\linewidth-\pgflinewidth)/#1} % maximale Anzahl Kästchen pro Zeile
 	\draw (0,0) rectangle (\anzahl*#1,#2*#1) (0,0) grid (\anzahl*#1,#2*#1);
-	\end{tikzpicture} 
+	\end{tikzpicture}%
 }
 
 % % Der neue Befehl, der alles steuert.

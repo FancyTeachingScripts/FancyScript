@@ -30,7 +30,9 @@
 \DeclareOption{einzelstunden}{ \einzelstundentrue } 
 \DeclareOption{aufraeumen}{ \aufraeumentrue } 
 \DeclareOption{timer}{ \timertrue } 
-\DeclareOption{attachements}{ \attachmentstrue } 
+\DeclareOption{attachments}{ \attachmentstrue }
+% veraltete Schreibweise, bleibt aber aktiv (ältere Skripte nutzen sie)
+\DeclareOption{attachements}{ \attachmentstrue }
 \DeclareOption{qrcodes}{ \qrcodestrue } 
 \DeclareOption{hinweise}{ \hintstrue } 
 \DeclareOption{cover}{ \covertrue } 
@@ -203,6 +205,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Documentenklasse
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\PassOptionsToPackage{dvipsnames}{xcolor}
 \ifbeamer
   \documentclass[aspectratio=169]{beamer}
 \else
@@ -223,7 +226,6 @@
 \RequirePackage{sty/1_packages}
 \RequirePackage{sty/1_ForwardDeclaration}
 \RequirePackage{sty/2_General}
-\graphicspath{{./img/}}
 \vbadness=10000
 \hbadness=99999
 
@@ -249,6 +251,11 @@
   UprightFont = *-Regular,
   BoldFont = *-Bold
 ]
+\RequirePackage{newunicodechar}
+\newunicodechar{ß}{\iffontchar\font"00DF ß\else{\normalfont ß}\fi}
+\newunicodechar{ẞ}{\iffontchar\font"1E9E ẞ\else{\normalfont ẞ}\fi}
+\newunicodechar{„}{\iffontchar\font"201E „\else{\normalfont „}\fi}
+\newunicodechar{“}{\iffontchar\font"201C “\else{\normalfont “}\fi}
 %%%%%%%%%%%%%
 \RequirePackage{sty/3_Loesung} 
 \RequirePackage{sty/4_Info}
