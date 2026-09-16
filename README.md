@@ -67,14 +67,41 @@ zuerst gepusht, der Zeiger verweist nie auf einen unbekannten Commit).
 In einem Kursrepo (Vorlage als Submodul unter `template/`):
 
 ```
-tectonic -Z search-path=template -Z search-path=. -Z search-path=template/sty/moloch \
+tectonic -Z search-path=. -Z search-path=template -Z search-path=template/sty/moloch \
   -Z continue-on-errors -o build main.tex
 ```
 
-In diesem Repo selbst liegt `sty/` direkt im Wurzelverzeichnis, daher `-Z search-path=.`.
+**Reihenfolge ist wichtig:** `.` muss vor `template` stehen. Dieses Repo hat
+(für seine eigene Demo) selbst ein `selected.tex`/`_Skripte`/`_Aufgaben` im
+Wurzelverzeichnis – dieselben relativen Pfade wie in jedem Kursrepo. Stünde
+`template` zuerst, würde jedes Kursrepo beim Kompilieren die Demo-Inhalte der
+Vorlage statt seiner eigenen Inhalte bekommen (genau das ist einmal passiert,
+siehe #15). `tools/build.sh` & Co. haben die richtige Reihenfolge bereits fest
+eingebaut.
 
 Es muss **keine einzige `\usepackage{sty/...}`-Zeile geändert werden**: Weil das
 Wurzelverzeichnis des Suchpfads weiterhin ein `sty/` enthält, lösen alle bisherigen
 Pfade unverändert auf.
+
+## Architektur auf einen Blick (für Menschen & LLMs)
+
+- **Modell:** `template/` ist ein Git-Submodul, kein Fork. Nie mergen, nur den
+  Commit-Zeiger im Kursrepo bewegen (`git add template && git commit`). Jedes
+  Kursrepo pinnt seine eigene Version, alte Skripte bleiben stabil.
+- **Suchpfad:** Tectonic löst Inhalte über `-Z search-path` auf (kein `TEXINPUTS`).
+  Kursrepo-Pfad **immer vor** `template`-Pfad, s.o.
+- **CI:** `release.yml` / `pr-preview.yml` hier sind wiederverwendbare
+  (`workflow_call`) Workflows; jedes Kursrepo hat nur einen ~10-zeiligen Aufruf.
+  Da jedes Kursrepo aus einem Fork dieses Repos entstand, ist
+  `default_workflow_permissions` org-weit `read` – jeder Caller-Workflow braucht
+  daher einen expliziten `permissions:`-Block, sonst schlägt der Call mit
+  `startup_failure` fehl (kein einzelner Job wird erstellt).
+- **PR-Previews:** `comment-on-pr` veröffentlicht PDFs auf dem `previews`-Branch
+  und verlinkt sie über `cdn.jsdelivr.net`. jsDelivr ignoriert Query-Strings für
+  sein Caching (kein `?v=`-Cachebuster möglich) und cached branch-Inhalte
+  stundenlang; deshalb bekommt jeder Commit einen eigenen Dateinamen
+  (`<datei>-<sha>.pdf`, `sha` = `github.event.pull_request.head.sha` – **nicht**
+  `$GITHUB_SHA`, das ist bei `pull_request`-Events der Merge-Commit, nicht der
+  eigentliche PR-Head, siehe #17).
 
 Wer auch seine Skripte [hier](https://github.com/FancyTeachingScripts) gesammelt zur Verfügung stellen möchte, kann mich jederzeit für entsprechende Berechtigungen kontaktieren.
