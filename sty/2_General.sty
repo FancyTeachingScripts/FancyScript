@@ -7,7 +7,11 @@
 
 \renewcommand{\umltextcolor}{\TFarbe}
 \ifbeamer
+  \ifbright
+    \renewcommand{\umlfillcolor}{white}
+  \else
     \renewcommand{\umlfillcolor}{black}
+  \fi
 \else
     \renewcommand{\umlfillcolor}{white}
 \fi
@@ -426,13 +430,23 @@ escapeinside={(*@}{@*)}
 }
 
 \ifbeamer
-	\hypersetup{
-		colorlinks=true,
-		linkcolor=white,
-		filecolor=magenta,      
-		urlcolor=Lavender,
-		%pdftitle={\Titeltext},
-	}
+	\ifbright
+		\hypersetup{
+			colorlinks=true,
+			linkcolor=blue,
+			filecolor=magenta,      
+			urlcolor=BlueViolet,
+			%pdftitle={\Titeltext},
+		}
+	\else
+		\hypersetup{
+			colorlinks=true,
+			linkcolor=white,
+			filecolor=magenta,      
+			urlcolor=Lavender,
+			%pdftitle={\Titeltext},
+		}
+	\fi
 \else
 	\hypersetup{
 		colorlinks=true,

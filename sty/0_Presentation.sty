@@ -3,13 +3,23 @@
 
 
 \definecolor{lcolor}{RGB}{0, 255, 255}
-\renewcommand{\LFarbe}{lcolor}
-\renewcommand{\TFarbe}{white}
+\ifbright
+  \renewcommand{\LFarbe}{blue}
+  \renewcommand{\TFarbe}{black}
+\else
+  \renewcommand{\LFarbe}{lcolor}
+  \renewcommand{\TFarbe}{white}
+\fi
 
 
 \usetheme{moloch}
-\usecolortheme{owl}
-\setbeamercolor{background canvas}{bg=black}
+\ifbright
+  \setbeamercolor{background canvas}{bg=white}
+  \setbeamercolor{normal text}{fg=black, bg=white}
+\else
+  \usecolortheme{owl}
+  \setbeamercolor{background canvas}{bg=black}
+\fi
 
 \newcounter{prevsection}
 \setcounter{prevsection}{0}
@@ -60,6 +70,12 @@
 
 \AtBeginSection[]{
     \ifeinzelstunden % Outline auf doppelt und auf Englisch für Artemis notwendig
+          \begingroup
+          \ifbright
+            % Kopfzeile (Band + Text) auf Weiss unsichtbar machen, bleibt aber
+            % als Struktur für das externe Tool erhalten.
+            \setbeamercolor{frametitle}{fg=white, bg=white}
+          \fi
           \begin{frame}{Outline}%: \Fachtext~\Klassetext~-~\Titeltext}
             % \begin{columns}[t]
             %   \begin{column}{.49\textwidth}
@@ -70,7 +86,7 @@
             %   \end{column}
             % \end{columns}
 
-            {\tiny\color{black}Outline}
+            {\tiny\color{\outlinecolor}Outline}
             \begin{minipage}{\textwidth}
             \begin{multicols}{2}
                 \tableofcontents[currentsection,subsectionstyle=hide]
@@ -78,6 +94,7 @@
                 
             \end{minipage}
           \end{frame}
+          \endgroup
 
         % REMOVED FOR DUMMARY ZOOM
         % \begin{frame}\LARGE
@@ -180,6 +197,21 @@
 }
 
 
+% Timer- und Outline-Farben, abhängig vom hellen Modus:
+% im dunklen Modus wie bisher (dunkler Balken, weisser Text), im hellen
+% Modus heller Balken mit schwarzem Text bzw. weisser (unsichtbarer) Outline.
+\ifbright
+  \newcommand{\timerbarfull}{black!20}
+  \newcommand{\timerbarcover}{black!20}
+  \newcommand{\timertextcolor}{black}
+  \newcommand{\outlinecolor}{white}
+\else
+  \newcommand{\timerbarfull}{darkgray!120}
+  \newcommand{\timerbarcover}{darkgray!100}
+  \newcommand{\timertextcolor}{white}
+  \newcommand{\outlinecolor}{black}
+\fi
+
 \renewcommand{\timer}[1]{
     \iftimer
         \iftoggle{preview}{
@@ -192,8 +224,8 @@
                 
                 
                 \only<1>{%
-                    \fill[darkgray!120] (current page.south west) rectangle ++(\paperwidth, 0.31cm);
-                    \node[text width=2.1cm] at ([yshift=4.5pt]current page.south east) {\fontsize{8}{8}\selectfont\total~Min.};
+                    \fill[\timerbarfull] (current page.south west) rectangle ++(\paperwidth, 0.31cm);
+                    \node[text width=2.1cm, text=\timertextcolor] at ([yshift=4.5pt]current page.south east) {\fontsize{8}{8}\selectfont\total~Min.};
                 }
         
                 \foreach \i in {2,...,\lastSlide} {
@@ -203,8 +235,8 @@
                     \only<\i>{%
                         \ifnum\i<\lastSlide
                             \fill[left color = green,right color = orange] ([xshift=0cm ]current page.south west) rectangle ++(\paperwidth, 0.3cm);
-                            \fill[darkgray!100] ([xshift=\x ]current page.south west) rectangle ++(\paperwidth, 0.31cm);
-                            \node[text width=2.1cm] at ([yshift=4.5pt]current page.south east) {\fontsize{8}{8}\selectfont \timeleft~Min.};
+                            \fill[\timerbarcover] ([xshift=\x ]current page.south west) rectangle ++(\paperwidth, 0.31cm);
+                            \node[text width=2.1cm, text=\timertextcolor] at ([yshift=4.5pt]current page.south east) {\fontsize{8}{8}\selectfont \timeleft~Min.};
                         \fi
                     }
                     \ifnum\i<\lastSlide\transduration<\i>{60}\fi

@@ -21,6 +21,7 @@
 \newif\ifattachments
 \newif\ifhints
 \newif\ifcover
+\newif\ifbright
 
 % single options
 \DeclareOption{presentation}{ \beamertrue }
@@ -36,6 +37,7 @@
 \DeclareOption{qrcodes}{ \qrcodestrue } 
 \DeclareOption{hinweise}{ \hintstrue } 
 \DeclareOption{cover}{ \covertrue } 
+\DeclareOption{bright}{ \brighttrue }
 
 
 
@@ -117,6 +119,68 @@
     %\qrcodestrue
     %\hintstrue
 } 
+\DeclareOption{presentation-minimal-bright}{
+    \beamertrue
+    \loesungtrue
+    \avenirtrue
+    \brighttrue
+}
+\DeclareOption{presentation-minimal-session-bright}{
+    \beamertrue
+    \loesungtrue
+    \avenirtrue
+    \einzelstundentrue
+    \brighttrue
+}
+\DeclareOption{presentation-minimal-attachments-bright}{
+    \beamertrue
+    \loesungtrue
+    \avenirtrue
+    \einzelstundentrue
+    \attachmentstrue
+    \brighttrue
+}
+\DeclareOption{presentation-noaufraeumen-bright}{
+    \beamertrue
+    \loesungtrue
+    \avenirtrue
+    \letzterstandtrue
+    \einzelstundentrue
+    \timertrue
+    \attachmentstrue
+    \brighttrue
+}
+\DeclareOption{presentation-nosession-bright}{
+    \beamertrue
+    \loesungtrue
+    \avenirtrue
+    \letzterstandtrue
+    \aufraeumentrue
+    \timertrue
+    \attachmentstrue
+    \brighttrue
+}
+\DeclareOption{presentation-notimer-bright}{
+    \beamertrue
+    \loesungtrue
+    \avenirtrue
+    \letzterstandtrue
+    \einzelstundentrue
+    \aufraeumentrue
+    \attachmentstrue
+    \brighttrue
+}
+\DeclareOption{presentation-full-bright}{
+    \beamertrue
+    \loesungtrue
+    \avenirtrue
+    \letzterstandtrue
+    \einzelstundentrue
+    \aufraeumentrue
+    \timertrue
+    \attachmentstrue
+    \brighttrue
+}
 \DeclareOption{print-students}{ 
     %\beamertrue 
     %\loesungtrue

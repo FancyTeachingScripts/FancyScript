@@ -13,6 +13,17 @@
 \definecolor{colB_derksen}{rgb}{0, 0.412, 0.698}
 \definecolor{colC_derksen}{rgb}{0.408, 0.686, 0.133}
 
+% Hintergrundfarbe der gerahmten Boxen (tcolorbox):
+% im dunklen Modus fast schwarz (wie bisher), im hellen Modus (bright)
+% eine leichte Anlaufflaerbung auf Weiss.
+\ifbright
+  \newcommand{\boxbackA}{colA!15!white}
+  \newcommand{\boxbackB}{colB!12!white}
+\else
+  \newcommand{\boxbackA}{colA!10!black}
+  \newcommand{\boxbackB}{colB!7!black}
+\fi
+
 \renewcommand{\emphColor}[2]{{\color{#1} \emph{#2}}}
 \renewcommand{\emphColA}[1]{\emphColor{colA}{#1}}
 \renewcommand{\emphColB}[1]{\emphColor{colB}{#1}}
@@ -247,7 +258,7 @@
             opacityframe=1,
             fontupper=\color{\TFarbe},
             opacityback=1,
-            colback=colA!10!black,
+            colback=\boxbackA,
             colframe=colA,
             boxsep=0pt,
             left=3pt,
@@ -328,7 +339,7 @@
             opacityframe=1,
             fontupper=\color{\TFarbe},
             opacityback=1,
-            colback=colB!7!black,
+            colback=\boxbackB,
             colframe=lightgray,
             boxsep=0pt,
             left=3pt,
@@ -382,7 +393,7 @@
             left=3pt,
             right=3pt,
             righttitle=20pt,
-            colback=colB!7!black,
+            colback=\boxbackB,
             colframe=lightgray,
             fonttitle=\bfseries\Large,
             overlay={\node[anchor=east,inner sep=0pt,xshift=-3pt] at (title.east) {\includegraphics[height=17pt]{sty/img/finger_\theme_colB.pdf}};}
