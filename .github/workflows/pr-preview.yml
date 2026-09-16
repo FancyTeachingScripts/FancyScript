@@ -86,13 +86,27 @@ jobs:
           fi
 
           PR_DIR="pr-${{ github.event.pull_request.number }}"
+          SHA_SHORT="${GITHUB_SHA::7}"
           mkdir -p "$PR_DIR"
-          cp downloaded-pdfs/*.pdf "$PR_DIR/"
 
-          git add "$PR_DIR"/*.pdf
-          git commit -m "Update previews for PR #${{ github.event.pull_request.number }} (${GITHUB_SHA::7})" || echo "No changes to commit"
+          # Drop the previous commit's PDFs and publish this commit's under a
+          # SHA-suffixed name. jsDelivr caches GitHub-sourced branch content
+          # for hours and its purge API is best-effort/not-instant, so a
+          # fixed filename (print_students-cover.pdf) can keep serving a
+          # stale build after a push. A per-commit filename is a guaranteed
+          # cache miss instead of a race against purge propagation.
+          rm -f "$PR_DIR"/*.pdf
+          for f in downloaded-pdfs/*.pdf; do
+            name="$(basename "$f" .pdf)"
+            cp "$f" "$PR_DIR/${name}-${SHA_SHORT}.pdf"
+          done
+
+          git add "$PR_DIR"
+          git commit -m "Update previews for PR #${{ github.event.pull_request.number }} (${SHA_SHORT})" || echo "No changes to commit"
           git push origin previews || (git pull origin previews --rebase && git push origin previews)
 
+          # Best-effort purge so the old (now-removed) filenames don't
+          # linger in jsDelivr's cache indefinitely.
           for f in "$PR_DIR"/*.pdf; do
             curl -s "https://purge.jsdelivr.net/gh/${{ github.repository }}@previews/$f" > /dev/null || true
           done
@@ -108,18 +122,22 @@ jobs:
             });
 
             const prNumber = context.issue.number;
+            const sha = context.payload.pull_request.head.sha.substring(0, 7);
             const rows = artifacts.data.artifacts
               .filter(a => a.name.startsWith('preview-'))
               .map(a => {
-                const pdfName = a.name.replace('preview-', '') + '.pdf';
+                const baseName = a.name.replace('preview-', '');
+                // Must match the "${name}-${SHA_SHORT}.pdf" filename the
+                // publish step just pushed to the previews branch, so this
+                // link is always a cache miss on jsDelivr.
+                const pdfName = `${baseName}-${sha}.pdf`;
                 const viewUrl = `https://cdn.jsdelivr.net/gh/${context.repo.owner}/${context.repo.repo}@previews/pr-${prNumber}/${pdfName}`;
                 const downloadUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}/artifacts/${a.id}`;
-                return `| \`${pdfName}\` | [👁 Open in Browser Viewer](${viewUrl}) | [⬇ Download ZIP](${downloadUrl}) |`;
+                return `| \`${baseName}.pdf\` | [👁 Open in Browser Viewer](${viewUrl}) | [⬇ Download ZIP](${downloadUrl}) |`;
               })
               .join('\n');
 
             const runUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
-            const sha = context.payload.pull_request.head.sha.substring(0, 7);
 
             const body = [
               '<!-- pdf-preview-bot -->',
