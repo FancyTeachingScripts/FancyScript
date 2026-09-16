@@ -1,0 +1,218 @@
+name: Compile PDFs (reusable)
+
+# Reusable release pipeline shared by every course repo AND by this repo's own
+# demo. Callers supply only where the PDFs get published.
+#
+# template_dir is what makes it work for both shapes:
+#   - a course repo mounts this repo as a submodule at ./template  -> "template"
+#   - this repo builds itself, with sty/ and tools/ at its own root -> "."
+on:
+  workflow_call:
+    inputs:
+      website_path:
+        description: 'Subdirectory under _coll_lessonscripts/ on the website repo, e.g. inf09_tabkalk or demo'
+        required: true
+        type: string
+      commit_label:
+        description: 'Human-readable name used in the website commit message'
+        required: true
+        type: string
+      template_dir:
+        description: 'Where the template payload lives: "template" for a course repo, "." for this repo itself'
+        required: false
+        default: 'template'
+        type: string
+    secrets:
+      WEBSITE_REPO_TOKEN:
+        required: true
+
+permissions:
+  contents: write
+  pull-requests: read
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Generate main/*.tex from the option matrix
+        run: bash ${{ inputs.template_dir }}/tools/gen-main.sh main
+
+      - name: Set up compilation matrix
+        id: set-matrix
+        run: |
+          files=$(find main -maxdepth 1 -name "*.tex" -type f -printf '%f\n' | jq -R -s -c 'split("\n") | map(select(length > 0))')
+          echo "matrix=$files" >> $GITHUB_OUTPUT
+          echo "Found files: $files"
+
+  compile:
+    runs-on: ubuntu-latest
+    needs: prepare
+    strategy:
+      matrix:
+        texfile: ${{ fromJson(needs.prepare.outputs.matrix) }}
+      fail-fast: false
+    steps:
+      # Each job checks out directly instead of passing a ~30 MB artifact
+      # around, which the previous version did only because lualatex needed
+      # a pre-staged tree.
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Setup Tectonic
+        uses: wtfjoke/setup-tectonic@v4
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate main/*.tex from the option matrix
+        run: bash ${{ inputs.template_dir }}/tools/gen-main.sh main
+
+      - name: Compile ${{ matrix.texfile }}
+        run: |
+          tectonic -Z search-path=${{ inputs.template_dir }} -Z search-path=. \
+                   -Z search-path=${{ inputs.template_dir }}/sty/moloch \
+                   -Z continue-on-errors -o . main/${{ matrix.texfile }}
+
+      - name: Get base filename
+        id: basename
+        run: |
+          basename="${{ matrix.texfile }}"
+          basename="${basename%.tex}"
+          echo "basename=$basename" >> $GITHUB_OUTPUT
+
+      - name: Upload ${{ steps.basename.outputs.basename }}.pdf
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.basename.outputs.basename }}
+          path: ${{ steps.basename.outputs.basename }}.pdf
+          compression-level: 0
+
+  combine-artifacts:
+    runs-on: ubuntu-latest
+    needs: compile
+    steps:
+      - name: Download all PDFs
+        uses: actions/download-artifact@v4
+        with:
+          pattern: "*"
+          merge-multiple: true
+
+      - name: Upload All PDFs
+        uses: actions/upload-artifact@v4
+        with:
+          name: All_PDFs
+          path: "*.pdf"
+          compression-level: 0
+          retention-days: ${{ github.event_name == 'release' && 1 || 7 }}
+
+      - name: Upload Derksen PDFs
+        uses: actions/upload-artifact@v4
+        with:
+          name: All_Derksen_PDFs
+          path: "*_derksen.pdf"
+          compression-level: 0
+          retention-days: ${{ github.event_name == 'release' && 1 || 7 }}
+
+      - name: Upload MTG PDFs
+        uses: actions/upload-artifact@v4
+        with:
+          name: All_MTG_PDFs
+          path: "*_mtg.pdf"
+          compression-level: 0
+          retention-days: ${{ github.event_name == 'release' && 1 || 7 }}
+
+      - name: Upload Default Theme PDFs
+        uses: actions/upload-artifact@v4
+        with:
+          name: All_DefaultTheme_PDFs
+          path: |
+            *.pdf
+            !*_derksen.pdf
+            !*_mtg.pdf
+          compression-level: 0
+          retention-days: ${{ github.event_name == 'release' && 1 || 7 }}
+
+  attach-to-release:
+    runs-on: ubuntu-latest
+    needs: combine-artifacts
+    if: github.event_name == 'release'
+    steps:
+      - name: Download All PDFs
+        uses: actions/download-artifact@v4
+        with:
+          name: All_PDFs
+          path: all-pdfs
+
+      - name: Download Derksen PDFs
+        uses: actions/download-artifact@v4
+        with:
+          name: All_Derksen_PDFs
+          path: derksen-pdfs
+
+      - name: Download MTG PDFs
+        uses: actions/download-artifact@v4
+        with:
+          name: All_MTG_PDFs
+          path: mtg-pdfs
+
+      - name: Download Default Theme PDFs
+        uses: actions/download-artifact@v4
+        with:
+          name: All_DefaultTheme_PDFs
+          path: default-pdfs
+
+      - name: Create ZIP archives
+        run: |
+          cd all-pdfs && zip -r ../All_PDFs.zip . && cd ..
+          cd derksen-pdfs && zip -r ../All_Derksen_PDFs.zip . && cd ..
+          cd mtg-pdfs && zip -r ../All_MTG_PDFs.zip . && cd ..
+          cd default-pdfs && zip -r ../All_DefaultTheme_PDFs.zip . && cd ..
+
+      - name: Upload All PDFs to Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            All_PDFs.zip
+            All_Derksen_PDFs.zip
+            All_MTG_PDFs.zip
+            All_DefaultTheme_PDFs.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  commit-to-website:
+    runs-on: ubuntu-latest
+    needs: compile
+    if: github.event_name == 'release'
+    steps:
+      - name: Download all PDFs
+        uses: actions/download-artifact@v4
+        with:
+          pattern: "*"
+          merge-multiple: true
+
+      - name: Checkout website repository
+        uses: actions/checkout@v4
+        with:
+          repository: ValentinHerrmann/ValentinHerrmann.github.io
+          token: ${{ secrets.WEBSITE_REPO_TOKEN }}
+          path: website
+
+      - name: Copy PDFs to website
+        run: |
+          mkdir -p website/_coll_lessonscripts/${{ inputs.website_path }}/
+          cp *.pdf website/_coll_lessonscripts/${{ inputs.website_path }}/
+
+      - name: Commit and push PDFs
+        run: |
+          cd website
+          git config user.name "GitHub Actions Bot"
+          git config user.email "actions@github.com"
+          git add _coll_lessonscripts/${{ inputs.website_path }}/*.pdf
+          git commit -m "Update ${{ inputs.commit_label }} PDFs from ${{ github.repository }}@${{ github.sha }}" || echo "No changes to commit"
+          git push

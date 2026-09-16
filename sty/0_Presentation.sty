@@ -9,12 +9,20 @@
 
 \usetheme{moloch}
 \usecolortheme{owl}
+\setbeamercolor{background canvas}{bg=black}
 
 \newcounter{prevsection}
 \setcounter{prevsection}{0}
 \newcommand{\prevsection}{0}
 
-\geometry{paperwidth=21cm, paperheight=11.81cm}
+\geometry{
+  paperwidth=21cm,
+  paperheight=11.8125cm,
+  margin=0pt,
+  headheight=0pt,
+  headsep=0pt,
+  footskip=0pt,
+}
 \setbeamersize{text margin left=0.0cm, text margin right=0.0cm}
 \setbeamertemplate{page number in head/foot}{}
 
@@ -33,7 +41,7 @@
 %     }%
 % }
 
-\setbeamertemplate{background}{%
+\setbeamertemplate{footline}{%
     \begin{tikzpicture}[remember picture,overlay]
         \ifaufraeumen
             % Place 0.3cm from the bottom, centered horizontally
@@ -51,7 +59,7 @@
 \LoesungTitleExtension{}
 
 \AtBeginSection[]{
-    \ifeinzelstunden
+    \ifeinzelstunden % Outline auf doppelt und auf Englisch für Artemis notwendig
           \begin{frame}{Outline}%: \Fachtext~\Klassetext~-~\Titeltext}
             % \begin{columns}[t]
             %   \begin{column}{.49\textwidth}
@@ -61,7 +69,7 @@
             %     \tableofcontents[sections={5-7},subsectionstyle=hide]
             %   \end{column}
             % \end{columns}
-            
+
             {\tiny\color{black}Outline}
             \begin{minipage}{\textwidth}
             \begin{multicols}{2}
@@ -149,8 +157,6 @@
 \setbeamerfont{section in toc}{size=\normalsize}
 \fi
 \setbeamerfont{subsection in toc}{size=\normalsize}
-\setbeamercolor{section in toc}{fg=green}
-
 
 % Farben
 \setbeamercolor{section in toc}{fg=green}
@@ -179,9 +185,9 @@
         \iftoggle{preview}{
             }{%
             \begin{tikzpicture}[remember picture, overlay]
-                \pgfmathsetmacro{\total}{#1} % total number of blocks (steps)
-                \pgfmathsetmacro{\lastTimer}{\total + 1} % total number of blocks (steps)
-                \pgfmathsetmacro{\lastSlide}{\total + 2} % total number of blocks (steps)
+                \pgfmathtruncatemacro{\total}{#1} % total number of blocks (steps)
+                \pgfmathtruncatemacro{\lastTimer}{\total + 1} % total number of blocks (steps)
+                \pgfmathtruncatemacro{\lastSlide}{\total + 2} % total number of blocks (steps)
                 \pgfmathsetmacro{\blockwidth}{\paperwidth / \total}
                 
                 
@@ -195,16 +201,13 @@
                     \pgfmathsetmacro{\gWidth}{(\lastSlide - \i)*\blockwidth}
                     \pgfmathtruncatemacro{\timeleft}{\lastSlide - \i}
                     \only<\i>{%
-                        \ifthenelse{\i < \lastSlide}{
+                        \ifnum\i<\lastSlide
                             \fill[left color = green,right color = orange] ([xshift=0cm ]current page.south west) rectangle ++(\paperwidth, 0.3cm);
                             \fill[darkgray!100] ([xshift=\x ]current page.south west) rectangle ++(\paperwidth, 0.31cm);
                             \node[text width=2.1cm] at ([yshift=4.5pt]current page.south east) {\fontsize{8}{8}\selectfont \timeleft~Min.};
-                        }{
-                            % \fill[colB] ([xshift=0pt ]current page.south west) rectangle ++(\paperwidth, 0.31cm);
-                            % \node[text width=\paperwidth] at ([yshift=4.5pt]current page.south east) {\centering \fontsize{8}{8}\selectfont FERTIG};
-                        }
+                        \fi
                     }
-                    \ifthenelse{\i < \lastSlide}{\transduration<\i>{60}}{}
+                    \ifnum\i<\lastSlide\transduration<\i>{60}\fi
                 }
             \end{tikzpicture}%
             }
@@ -223,7 +226,7 @@
 
 \renewcommand{\EndOfSession}[1]{
     \begin{frame}[plain,label=end]
-        \fullframe{\animategraphics[autoplay,loop,width=\paperwidth]{#1}{sty/frames/frame-}{000}{124}}    
+        \fullframe{\animategraphics[autoplay,loop,width=\paperwidth]{#1}{sty/frames/frame-}{000}{125}}    
     \end{frame}
 }
 
