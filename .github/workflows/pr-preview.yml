@@ -73,6 +73,14 @@ jobs:
           path: downloaded-pdfs
 
       - name: Publish PDFs to previews branch
+        env:
+          # GITHUB_SHA on a pull_request event is the ephemeral
+          # refs/pull/N/merge commit, not the PR's actual head commit --
+          # using it here would name files under a SHA the PR comment
+          # (which links via github.event.pull_request.head.sha) never
+          # references, so the "fresh" link 404s. Pin both to the same
+          # value.
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
@@ -86,7 +94,7 @@ jobs:
           fi
 
           PR_DIR="pr-${{ github.event.pull_request.number }}"
-          SHA_SHORT="${GITHUB_SHA::7}"
+          SHA_SHORT="${PR_HEAD_SHA:0:7}"
           mkdir -p "$PR_DIR"
 
           # Drop the previous commit's PDFs and publish this commit's under a
