@@ -9,25 +9,26 @@
             "request": "launch",
             "name": "MAIN (LuaLaTeX)",
             "program": "${workspaceFolder}/.vscode/dummy.js",
-            "args": [],
             "preLaunchTask": "compile-single-tex",
-            "console": "integratedTerminal"
+            "console": "internalConsole",
+            "internalConsoleOptions": "neverOpen",
+            "sourceMaps": false,
+            "outFiles": [],
+            "autoAttachChildProcesses": false,
+            "skipFiles": ["<node_internals>/**"]
         },
         {
             "type": "node",
             "request": "launch",
             "name": "ALL (./main/*.tex))",
             "program": "${workspaceFolder}/.vscode/dummy.js",
-            "args": [],
             "preLaunchTask": "build-all-main-tex",
-            "console": "integratedTerminal"
-        }
-    ],
-    "inputs": [
-        {
-            "id": "texFile",
-            "type": "promptString",
-            "description": "Enter the path to the main .tex file to compile (e.g., main.tex)"
+            "console": "internalConsole",
+            "internalConsoleOptions": "neverOpen",
+            "sourceMaps": false,
+            "outFiles": [],
+            "autoAttachChildProcesses": false,
+            "skipFiles": ["<node_internals>/**"]
         }
     ]
 }
