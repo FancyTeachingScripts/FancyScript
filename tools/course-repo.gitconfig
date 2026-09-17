@@ -1,0 +1,21 @@
+# Recommended local git config for a course repo consuming this template as
+# a submodule at ./template. Not auto-applied by git (unlike .gitmodules'
+# `update = merge`, these three keys have no per-submodule equivalent) --
+# wire it in once per clone with:
+#
+#   git config --local include.path ../template/tools/course-repo.gitconfig
+#
+# (relative to .git/config, hence the leading ../)
+#
+[push]
+	# Push the submodule before the course repo, so the pinned commit is
+	# never left unfetchable for someone else who pulls right after.
+	recurseSubmodules = on-demand
+[submodule]
+	# git pull/checkout/etc. also update template/, without a separate
+	# `git submodule update` step.
+	recurse = true
+[status]
+	# `git status` shows a one-line summary of template/'s pending commits
+	# instead of nothing.
+	submodulesummary = 1
