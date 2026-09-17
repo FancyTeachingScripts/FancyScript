@@ -1,35 +1,38 @@
 # Parallel LaTeX Build Script (template version)
 #
-# Regenerates main/*.tex from the template's option matrix, then builds them
-# with concurrency bounded to the CPU count. Launching all 39 at once (the
-# previous behaviour) oversubscribes the machine and measured ~12% slower
-# end-to-end on a 16-core box, with a much larger memory spike.
+# Regenerates the template's option matrix into build\.tex\*.tex, then
+# builds them with concurrency bounded to the CPU count. Launching all 39
+# at once (the previous behaviour) oversubscribes the machine and measured
+# ~12% slower end-to-end on a 16-core box, with a much larger memory spike.
 #
 #   -Jobs N   concurrency (default: number of logical processors)
+#   -Out DIR  output directory for the compiled PDFs (default: main\pdfs)
 #   -Draft    single TeX pass: ~3x faster, but cross-references, the table of
 #             contents and beamer navigation are NOT converged. For a quick
 #             look only, never for anything published.
 param(
     [int]$Jobs = 0,
+    [string]$Out = ".\main\pdfs",
     [switch]$Draft
 )
 
 Write-Host "=== Parallel LaTeX Build Script ===" -ForegroundColor Magenta
 
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+$genDir = "build/.tex"
 
-# main/*.tex are generated, not checked in.
-bash "$scriptDir/gen-main.sh" main
+# build\.tex\*.tex are generated, not checked in.
+bash "$scriptDir/gen-main.sh" $genDir
 
 if ($Jobs -le 0) { $Jobs = [Environment]::ProcessorCount }
 Write-Host "Concurrency: $Jobs" -ForegroundColor Cyan
 
-$texFiles = Get-ChildItem -Path ".\main\*.tex"
+$texFiles = Get-ChildItem -Path "$genDir/*.tex"
 Write-Host "Found $($texFiles.Count) TeX files to compile..." -ForegroundColor Cyan
 
-if (!(Test-Path ".\main\pdfs")) {
-    New-Item -ItemType Directory -Path ".\main\pdfs" -Force | Out-Null
-    Write-Host "Created main/pdfs directory" -ForegroundColor Yellow
+if (!(Test-Path $Out)) {
+    New-Item -ItemType Directory -Path $Out -Force | Out-Null
+    Write-Host "Created $Out directory" -ForegroundColor Yellow
 }
 
 $baseArgs = @("-Z", "search-path=.", "-Z", "search-path=template", "-Z", "search-path=template/sty/moloch", "-Z", "continue-on-errors")
@@ -47,7 +50,7 @@ foreach ($file in $texFiles) {
     $running = @($running | Where-Object { $_ -ne $null })
 
     Write-Host "Starting $($file.Name)..." -ForegroundColor Yellow
-    $procArgs = $baseArgs + @("-o", ".\main\pdfs", $file.FullName)
+    $procArgs = $baseArgs + @("-o", $Out, $file.FullName)
     $process = Start-Process -FilePath "tectonic" -ArgumentList $procArgs -PassThru -NoNewWindow
     $running += @{Process=$process; FileName=$file.Name}
 }
@@ -65,6 +68,11 @@ foreach ($procInfo in ($running + $results)) {
 
 Write-Host "Cleaning up temporary files..." -ForegroundColor Cyan
 Get-ChildItem -Path "." -Include "*.aux","*.log","*.nav","*.out","*.snm","*.toc","*.atfi","*.fls","*.fdb_latexmk","*.synctex.gz","*.bbl","*.blg" -Recurse | Remove-Item -Force
+
+# build\.tex\*.tex are pure build inputs, regenerated fresh from
+# options.conf on every run (see gen-main.sh) -- remove them so they don't
+# clutter the repo once the PDFs (in $Out) exist.
+Remove-Item -Path $genDir -Recurse -Force -ErrorAction SilentlyContinue
 
 Write-Host "Cleanup completed!" -ForegroundColor Green
 Write-Host "=== Build process finished ===" -ForegroundColor Magenta

@@ -9,11 +9,19 @@ mussten dann per Merge in jeden Fork zurückgeholt werden – das erzeugt bei je
 Abgleich Konflikte, und in der Praxis wurde dadurch monatelang gar nicht mehr
 synchronisiert.
 
-Stattdessen wird dieses Repo jetzt als **Submodul unter `template/`** eingebunden:
+Stattdessen wird dieses Repo jetzt als **Submodul unter `template/`** eingebunden.
+
+**Neues Kursrepo (empfohlen):** aus dem Kursrepo-Template erzeugen (GitHub
+"Use this template") und danach einmalig `./init.sh` ausführen – das Skript
+liegt bereits im neuen Repo (es lebt im Kursrepo, nicht im Submodul, das es
+selbst noch gar nicht gibt) und holt `template/` samt der empfohlenen
+git-Konfiguration.
+
+**Bestehendes Repo nachrüsten:**
 
 ```bash
 git submodule add -b main git@github.com:FancyTeachingScripts/FancyScript.git template
-bash template/tools/init-course.sh
+git config --local include.path ../template/tools/course-repo.gitconfig
 ```
 
 Es wird nie gemerged, sondern nur ein Commit-Zeiger verschoben – Konflikte sind damit
@@ -39,10 +47,15 @@ git add template && git commit -m "bump template"   # Version festhalten
 git submodule update --remote --merge
 ```
 
-`init-course.sh` setzt die git-Konfiguration, die diesen Ablauf absichert:
-`submodule.template.update merge` (kein detached HEAD, Fixes werden nicht zu
-verwaisten Commits) und `push.recurseSubmodules on-demand` (das Submodul wird
-zuerst gepusht, der Zeiger verweist nie auf einen unbekannten Commit).
+Die git-Konfiguration, die diesen Ablauf absichert, kommt aus zwei Quellen:
+`update = merge` (kein detached HEAD, Fixes werden nicht zu verwaisten Commits)
+steht direkt im `.gitmodules` des Kursrepos und gilt automatisch, ganz ohne
+Zusatzschritt. `push.recurseSubmodules = on-demand` (das Submodul wird zuerst
+gepusht, der Zeiger verweist nie auf einen unbekannten Commit) sowie
+`submodule.recurse` und `status.submodulesummary` sind keine
+`.gitmodules`-Schlüssel und brauchen den `include.path`-Befehl oben – er bindet
+[`tools/course-repo.gitconfig`](tools/course-repo.gitconfig) lokal ein, sodass
+kein Kursrepo diese Werte selbst pflegen muss.
 
 ## Aufbau
 
@@ -55,8 +68,11 @@ zuerst gepusht, der Zeiger verweist nie auf einen unbekannten Commit).
   ca. 3× schneller (gemessen 19,7 s statt 56,5 s), aber Querverweise, TOC und
   Beamer-Navigation sind **nicht** konvergiert – nur zum Zwischenschauen.
 - `tools/build-parallel.sh` – alle 39 bauen, Parallelität auf `nproc` begrenzt.
+- `tools/build-preview.sh` – die feste PR-Preview-Auswahl bauen (dieselbe wie
+  `.github/workflows/pr-preview.yml`), lokal vor dem Push.
 - `tools/optimize-frames.sh` – die Animationsbilder verkleinern.
-- `tools/init-course.sh` – einmalige git-Konfiguration für ein Kursrepo.
+- `tools/course-repo.gitconfig` – git-Konfiguration für ein Kursrepo, per
+  `include.path` eingebunden statt kopiert (s.o.).
 - `.github/workflows/release.yml`, `pr-preview.yml` – **wiederverwendbare**
   Workflows (`workflow_call`). Jedes Kursrepo enthält nur noch einen ~10-zeiligen
   Aufruf, der `website_path` und `commit_label` übergibt. Dieses Repo baut seine
