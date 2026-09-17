@@ -9,7 +9,15 @@ mussten dann per Merge in jeden Fork zurückgeholt werden – das erzeugt bei je
 Abgleich Konflikte, und in der Praxis wurde dadurch monatelang gar nicht mehr
 synchronisiert.
 
-Stattdessen wird dieses Repo jetzt als **Submodul unter `template/`** eingebunden:
+Stattdessen wird dieses Repo jetzt als **Submodul unter `template/`** eingebunden.
+
+**Neues Kursrepo (empfohlen):** aus dem Kursrepo-Template erzeugen (GitHub
+"Use this template") und danach einmalig `./init.sh` ausführen – das Skript
+liegt bereits im neuen Repo (es lebt im Kursrepo, nicht im Submodul, das es
+selbst noch gar nicht gibt) und holt `template/` samt der empfohlenen
+git-Konfiguration.
+
+**Bestehendes Repo nachrüsten:**
 
 ```bash
 git submodule add -b main git@github.com:FancyTeachingScripts/FancyScript.git template
