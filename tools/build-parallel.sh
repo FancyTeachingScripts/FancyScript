@@ -8,6 +8,7 @@
 # peak memory spike (each build peaks around 240 MB RSS).
 #
 #   -j N      concurrency (default: nproc)
+#   -o DIR    output directory for the compiled PDFs (default: main/pdfs)
 #   --draft   single TeX pass per file: ~3x faster, but cross-references,
 #             the table of contents and beamer navigation are NOT converged
 #             (page counts can be off by one). Use for a quick look, never
@@ -22,6 +23,7 @@ REPASS=""
 while [ $# -gt 0 ]; do
   case "$1" in
     -j) JOBS="$2"; shift 2 ;;
+    -o) OUT="$2"; shift 2 ;;
     --draft) REPASS="-r 0"; shift ;;
     *) echo "unknown option: $1" >&2; exit 2 ;;
   esac
