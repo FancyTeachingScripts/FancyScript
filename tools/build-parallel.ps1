@@ -68,5 +68,14 @@ foreach ($procInfo in ($running + $results)) {
 Write-Host "Cleaning up temporary files..." -ForegroundColor Cyan
 Get-ChildItem -Path "." -Include "*.aux","*.log","*.nav","*.out","*.snm","*.toc","*.atfi","*.fls","*.fdb_latexmk","*.synctex.gz","*.bbl","*.blg" -Recurse | Remove-Item -Force
 
+# main\*.tex are pure build inputs, regenerated fresh from options.conf on
+# every run (see gen-main.sh) -- remove them so they don't clutter the repo
+# once the PDFs (in $Out) exist. Leaves e.g. main\pdfs\ (the default $Out)
+# untouched.
+Remove-Item -Path ".\main\*.tex" -Force -ErrorAction SilentlyContinue
+if ((Get-ChildItem -Path ".\main" -Force -ErrorAction SilentlyContinue).Count -eq 0) {
+    Remove-Item -Path ".\main" -Force -ErrorAction SilentlyContinue
+}
+
 Write-Host "Cleanup completed!" -ForegroundColor Green
 Write-Host "=== Build process finished ===" -ForegroundColor Magenta

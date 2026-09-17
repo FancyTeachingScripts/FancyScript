@@ -42,4 +42,11 @@ find . -type f \( -name "*.aux" -o -name "*.log" -o -name "*.nav" -o -name "*.ou
   -o -name "*.snm" -o -name "*.toc" -o -name "*.atfi" -o -name "*.fls" \
   -o -name "*.fdb_latexmk" -o -name "*.synctex.gz" -o -name "*.bbl" -o -name "*.blg" \) -delete
 
+# main/*.tex are pure build inputs, regenerated fresh from options.conf on
+# every run (see gen-main.sh) -- remove them so they don't clutter the repo
+# once the PDFs (in $OUT) exist. Leaves e.g. main/pdfs/ (the default $OUT)
+# untouched, since the glob only matches files directly in main/.
+rm -f main/*.tex
+rmdir --ignore-fail-on-non-empty main 2>/dev/null || true
+
 exit "$rc"

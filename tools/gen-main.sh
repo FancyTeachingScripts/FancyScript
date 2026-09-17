@@ -8,12 +8,20 @@
 # LUALATEX, ...) structurally impossible: fix it once here, every course
 # gets it on its next build.
 #
-# Usage: tools/gen-main.sh [output-dir]   (default: main/, relative to CWD)
+# Usage: tools/gen-main.sh [output-dir] [filename...]
+#   (output-dir default: main/, relative to CWD)
+# With filenames given (e.g. presentation_full.tex), only those driver
+# files are (re)generated instead of the full option x theme matrix --
+# for callers that only need a handful, like build-preview.sh.
 set -euo pipefail
 
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
 CONF="$SCRIPT_DIR/options.conf"
 OUT="${1:-main}"
+shift || true
+
+declare -A WANT=()
+for f in "$@"; do WANT["$f"]=1; done
 
 mkdir -p "$OUT"
 
@@ -83,6 +91,9 @@ for line in "${OPTION_LINES[@]}"; do
       outfile="${base}.tex"
     else
       outfile="${base}_${theme}.tex"
+    fi
+    if [ "${#WANT[@]}" -gt 0 ] && [ -z "${WANT[$outfile]:-}" ]; then
+      continue
     fi
     gen_one "$opt_id" "$theme" "$outfile"
     count=$((count+1))
