@@ -12,8 +12,9 @@
 #                       course repo (default), "." for this repo itself
 #
 # Only these 4 driver files are generated (not the full 60-file option x
-# theme matrix -- see gen-main.sh), built in parallel, and removed again
-# once the build finishes, so this doesn't leave anything behind in main\.
+# theme matrix -- see gen-main.sh), into build\.tex\ rather than main\,
+# built in parallel, and removed again once the build finishes, so this
+# doesn't leave anything behind.
 param(
     [string]$Out = "build",
     [string]$TemplateDir = "template"
@@ -22,6 +23,7 @@ param(
 $ErrorActionPreference = "Stop"
 
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+$genDir = "build/.tex"
 
 $files = @(
     "presentation_noaufraeumen.tex",
@@ -30,7 +32,7 @@ $files = @(
     "print_solution-cover.tex"
 )
 
-bash "$scriptDir/gen-main.sh" main @files
+bash "$scriptDir/gen-main.sh" $genDir @files
 
 if (!(Test-Path $Out)) {
     New-Item -ItemType Directory -Path $Out -Force | Out-Null
@@ -41,7 +43,7 @@ $baseArgs = @("-Z", "search-path=.", "-Z", "search-path=$TemplateDir", "-Z", "se
 $running = @()
 foreach ($f in $files) {
     Write-Host "Starting $f..." -ForegroundColor Yellow
-    $procArgs = $baseArgs + @("-o", $Out, "main/$f")
+    $procArgs = $baseArgs + @("-o", $Out, "$genDir/$f")
     $process = Start-Process -FilePath "tectonic" -ArgumentList $procArgs -PassThru -NoNewWindow
     $running += @{Process=$process; FileName=$f}
 }
@@ -57,11 +59,6 @@ foreach ($procInfo in $running) {
     }
 }
 
-foreach ($f in $files) {
-    Remove-Item -Path "main/$f" -Force -ErrorAction SilentlyContinue
-}
-if ((Get-ChildItem -Path ".\main" -Force -ErrorAction SilentlyContinue).Count -eq 0) {
-    Remove-Item -Path ".\main" -Force -ErrorAction SilentlyContinue
-}
+Remove-Item -Path $genDir -Recurse -Force -ErrorAction SilentlyContinue
 
 if ($failed) { exit 1 }

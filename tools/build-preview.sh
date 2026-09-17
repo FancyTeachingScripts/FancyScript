@@ -14,13 +14,15 @@
 #                       course repo (default), "." for this repo itself
 #
 # Only these 4 driver files are generated (not the full 60-file option x
-# theme matrix -- see gen-main.sh) and they're removed again once the
-# build finishes, so this doesn't leave anything behind in main/.
+# theme matrix -- see gen-main.sh), into build/.tex/ rather than main/, and
+# they're removed again once the build finishes, so this doesn't leave
+# anything behind.
 set -euo pipefail
 
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
 TEMPLATE_DIR="template"
 OUT="build"
+GEN_DIR="build/.tex"
 JOBS="$(nproc 2>/dev/null || echo 4)"
 
 while [ $# -gt 0 ]; do
@@ -40,14 +42,13 @@ FILES=(
 )
 
 cleanup() {
-  for f in "${FILES[@]}"; do rm -f "main/$f"; done
-  rmdir --ignore-fail-on-non-empty main 2>/dev/null || true
+  rm -rf "$GEN_DIR"
 }
 trap cleanup EXIT
 
-bash "$SCRIPT_DIR/gen-main.sh" main "${FILES[@]}"
+bash "$SCRIPT_DIR/gen-main.sh" "$GEN_DIR" "${FILES[@]}"
 mkdir -p "$OUT"
 
 printf '%s\n' "${FILES[@]}" | xargs -P "$JOBS" -I{} \
   tectonic -Z search-path=. -Z "search-path=$TEMPLATE_DIR" -Z "search-path=$TEMPLATE_DIR/sty/moloch" \
-    -Z continue-on-errors -o "$OUT" "main/{}"
+    -Z continue-on-errors -o "$OUT" "$GEN_DIR/{}"

@@ -1,6 +1,7 @@
 #!/bin/bash
-# Regenerate main/*.tex from the template's option matrix, then build all
-# of them. Run from a course repo's root (template mounted at ./template).
+# Regenerate the template's option matrix into build/.tex/*.tex, then build
+# all of them. Run from a course repo's root (template mounted at
+# ./template).
 #
 # Concurrency is bounded to the core count. Launching all 39 builds at once
 # (the previous behaviour) oversubscribes a 16-core box by ~2.4x and measured
@@ -17,6 +18,7 @@ set -uo pipefail
 
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
 OUT="main/pdfs"
+GEN_DIR="build/.tex"
 JOBS="$(nproc 2>/dev/null || echo 4)"
 REPASS=""
 
@@ -29,10 +31,10 @@ while [ $# -gt 0 ]; do
   esac
 done
 
-bash "$SCRIPT_DIR/gen-main.sh" main
+bash "$SCRIPT_DIR/gen-main.sh" "$GEN_DIR"
 mkdir -p "$OUT"
 
-ls main/*.tex | xargs -P "$JOBS" -I{} \
+ls "$GEN_DIR"/*.tex | xargs -P "$JOBS" -I{} \
   tectonic -Z search-path=. -Z search-path=template -Z search-path=template/sty/moloch \
     -Z continue-on-errors $REPASS -o "$OUT" {}
 rc=$?
@@ -42,11 +44,9 @@ find . -type f \( -name "*.aux" -o -name "*.log" -o -name "*.nav" -o -name "*.ou
   -o -name "*.snm" -o -name "*.toc" -o -name "*.atfi" -o -name "*.fls" \
   -o -name "*.fdb_latexmk" -o -name "*.synctex.gz" -o -name "*.bbl" -o -name "*.blg" \) -delete
 
-# main/*.tex are pure build inputs, regenerated fresh from options.conf on
-# every run (see gen-main.sh) -- remove them so they don't clutter the repo
-# once the PDFs (in $OUT) exist. Leaves e.g. main/pdfs/ (the default $OUT)
-# untouched, since the glob only matches files directly in main/.
-rm -f main/*.tex
-rmdir --ignore-fail-on-non-empty main 2>/dev/null || true
+# build/.tex/*.tex are pure build inputs, regenerated fresh from
+# options.conf on every run (see gen-main.sh) -- remove them so they don't
+# clutter the repo once the PDFs (in $OUT) exist.
+rm -rf "$GEN_DIR"
 
 exit "$rc"
