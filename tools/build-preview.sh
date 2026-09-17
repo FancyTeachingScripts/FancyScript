@@ -35,10 +35,10 @@ while [ $# -gt 0 ]; do
 done
 
 FILES=(
-  presentation_noaufraeumen.tex
-  presentation_noaufraeumen-bright.tex
-  print_students-cover.tex
-  print_solution-cover.tex
+  presentation_noaufraeumen_mtg.tex
+  presentation_noaufraeumen-bright_mtg.tex
+  print_students-cover_mtg.tex
+  print_solution-cover_mtg.tex
 )
 
 cleanup() {
