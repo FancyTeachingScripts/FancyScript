@@ -299,6 +299,56 @@
     \fi
 }
 
+\newcommand{\UnterHefteintragSkript}[2]{%
+    \begin{minipage}[t]{\textwidth}%
+        \vspace{0.2cm}%
+        #2%
+    \end{minipage}%
+}
+
+\newcommand{\UnterHefteintragBeamer}[4]{
+    \definesframe[false]{#2}{
+        \setcounter{lsgcount}{1}
+        \color{\TFarbe}
+        \linespread{#1}
+        \iftimer
+          \ifnum\numexpr#4>0 \relax 
+              \timer{#4}
+              \setcounter{lsgcount}{#4}
+              \stepcounter{lsgcount}
+              \stepcounter{lsgcount}
+          \fi
+        \fi
+        \begin{tcolorbox}[
+            breakable,
+            enhanced,
+            title=\strut~~#2,
+            opacityframe=1,
+            fontupper=\color{\TFarbe},
+            opacityback=1,
+            colback=\boxbackA,
+            colframe=colA,
+            boxsep=0pt,
+            left=3pt,
+            right=3pt,
+            righttitle=20pt,
+            fonttitle=\linespread{1.0}\selectfont\bfseries\Large,
+            overlay={\node[anchor=east,inner sep=0pt,xshift=-3pt] at (title.east) {\includegraphics[height=15pt]{sty/img/pen_white.pdf}};}
+        ]
+        \marksectionstart
+            #3
+        \end{tcolorbox}
+    }
+}
+
+\renewcommand{\UnterHefteintrag}[4][0]{
+    \ifbeamer
+        \UnterHefteintragBeamer{#2}{#3}{#4}{#1}
+    \else
+        \UnterHefteintragSkript{#2}{#4}
+    \fi
+}
+
 
 \newcommand{\AufgabeSkript}[2]{
     \vspace{0.3cm}

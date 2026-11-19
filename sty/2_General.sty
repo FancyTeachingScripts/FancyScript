@@ -17,6 +17,31 @@
 \fi
 \renewcommand{\umldrawcolor}{\TFarbe}
 
+% Anzeigename einer Klasse (via \setClassNameDisplay), sonst Klassenname
+\newcommand{\umlcd@displayname}[1]{\ifcsname umlcd@displayname@#1\endcsname\csname umlcd@displayname@#1\endcsname\else#1\fi}
+\newcommand{\setClassNameDisplay}[2]{\expandafter\def\csname umlcd@displayname@#1\endcsname{#2}}
+\ifdefined\endpgfumlcd@class
+% pgf-umlcd >= 0.3 (2022)
+\def\endpgfumlcd@class{%
+    \pgfumlcd@calcuateNumberOfParts{}%
+    \node[anchor=north,this umlcd style] (\pgfumlcd@ClassName) at (\pgfumlcd@ClassPos) {%
+      {\pgfutil@font@bfseries\umlcd@displayname{\pgfumlcd@ClassName}} %
+      \pgfumlcd@insertAttributesAndOperations{}%
+    };%
+  \endpgfumlcd@classAndInterfaceCommon
+}
+\else
+% pgf-umlcd 0.3dev (2011, im Tectonic-Bundle)
+\def\endclass{%
+    \calcuateNumberOfParts{}%
+    \node[this umlcd style, anchor=north] (\umlcdClassName) at (\umlcdClassPos) {%
+      \textbf{\umlcd@displayname{\umlcdClassName}}
+      \insertAttributesAndOperations{}%
+    };%
+  \end{classAndInterfaceCommon}
+}
+\fi
+
 \renewcommand{\emph}[1]{\textbf{#1}}
 \providecommand{\currentsection}{\nameref{\thesection}}
 

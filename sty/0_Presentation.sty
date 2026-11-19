@@ -169,28 +169,28 @@
 \setbeamertemplate{subsection in toc}[centered]
 
 \ifeinzelstunden
-\setbeamerfont{section in toc}{size=\LARGE}
+\setbeamerfont{section in toc}{size=\large\bfseries}
 \else
 \setbeamerfont{section in toc}{size=\normalsize}
 \fi
-\setbeamerfont{subsection in toc}{size=\normalsize}
+\setbeamerfont{subsection in toc}{size=\small}
 
 % Farben
 \setbeamercolor{section in toc}{fg=green}
 
 % 4pt Abstand vor jeder Section in toc (Template überschreiben)
 \setbeamertemplate{section in toc}{%
-  \vskip8pt %
-  \leavevmode\leftskip=2em %
+  \vskip3pt %
+  \leavevmode\leftskip=1.5em %
   \usebeamerfont*{section in toc} %
   \usebeamercolor[fg]{section in toc} %
-  \centering\inserttocsection\par %
+  \centering\inserttocsection\par\nobreak %
 }
 
 
 % optional: Template für Subsections
 \setbeamertemplate{subsection in toc}{%
-  \leavevmode\leftskip=3em %
+  \leavevmode\leftskip=2.5em %
   \usebeamerfont*{subsection in toc} %
   \usebeamercolor[fg]{subsection in toc} %
   \centering\hspace*{1em}\inserttocsubsection\par %
